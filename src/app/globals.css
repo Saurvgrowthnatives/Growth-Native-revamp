@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@property --gn-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #03080f;
+
+  /* Growth Natives brand */
+  --color-gn-blue: #0074f8;
+  --color-gn-green: #19c027;
+  --color-gn-black: #03080f;
+  --color-gn-dark-grey: #484d57;
+  --color-gn-white: #ffffff;
+  --gradient-gn-primary: linear-gradient(90deg, #0074f8 0%, #19c027 100%);
+  --gradient-gn-radial-light: radial-gradient(circle, #0074f8 0%, #ffffff 100%);
+  --gradient-gn-radial-dark: radial-gradient(circle, #0074f8 0%, #03080f 100%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-gn-blue: var(--color-gn-blue);
+  --color-gn-green: var(--color-gn-green);
+  --color-gn-black: var(--color-gn-black);
+  --color-gn-dark-grey: var(--color-gn-dark-grey);
+  --color-gn-white: var(--color-gn-white);
+  --font-sans: var(--font-montserrat);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Hero atmospheric background — technical grid drift */
+@keyframes gn-grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 128px 0;
+  }
+}
+
+@keyframes gn-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Growth search demo — looping "typing then results" mock UI */
+@keyframes gn-demo-type {
+  0% {
+    width: 0;
+  }
+  32% {
+    width: 100%;
+  }
+  85% {
+    width: 100%;
+  }
+  95%,
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes gn-demo-cursor {
+  0%,
+  32% {
+    opacity: 1;
+  }
+  50%,
+  82% {
+    opacity: 0;
+  }
+  16%,
+  66% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes gn-demo-row {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  40%,
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  95%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.gn-demo-type {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  animation: gn-demo-type 9s ease-in-out infinite;
+}
+
+.gn-demo-cursor {
+  animation: gn-demo-cursor 9s steps(1) infinite;
+}
+
+.gn-demo-row {
+  animation: gn-demo-row 9s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-demo-type,
+  .gn-demo-cursor,
+  .gn-demo-row {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    width: auto;
+  }
+}
+
+.gn-hero-grid {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 64px
+  );
+  background-size: 64px 100%;
+  animation: gn-grid-drift 50s linear infinite;
+}
+
+.gn-fade-up {
+  opacity: 0;
+  animation: gn-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animated conic-gradient border sweep (nav CTA) */
+@keyframes gn-border-spin {
+  to {
+    --gn-angle: 360deg;
+  }
+}
+
+.gn-border-spin {
+  animation: gn-border-spin 3.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-border-spin {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-hero-grid {
+    animation: none;
+  }
+  .gn-fade-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
