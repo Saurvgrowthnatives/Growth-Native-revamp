@@ -183,3 +183,44 @@ body {
     transform: none;
   }
 }
+
+/* Trust strip — infinite logo marquee */
+@keyframes gn-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.gn-marquee-track {
+  animation: gn-marquee 34s linear infinite;
+}
+
+.gn-marquee-group:hover .gn-marquee-track {
+  animation-play-state: paused;
+}
+
+.gn-marquee-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-marquee-track {
+    animation: none;
+  }
+}
