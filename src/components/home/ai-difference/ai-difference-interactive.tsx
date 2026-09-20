@@ -17,7 +17,7 @@ const OPACITY_BY_DIST = [1, 0.6, 0.35, 0.15];
 // per feature id so each service gets a stable, distinct placeholder image
 // (not a random one on every reload) rather than an icon-in-a-box.
 function placeholderImageUrl(featureId: string) {
-  return `https://picsum.photos/seed/${featureId}/480/365`;
+  return `https://picsum.photos/seed/${featureId}/640/487`;
 }
 
 /**
@@ -106,7 +106,7 @@ export function AiDifferenceInteractive() {
       style={{ height: `${AI_FEATURES.length * SCROLL_VH_PER_ITEM}vh` }}
     >
       <div className="sticky top-0 flex h-screen items-center bg-white">
-        <div className="mx-auto grid w-full max-w-[1320px] grid-cols-[230px_1fr_240px] items-center gap-12 px-6 lg:gap-16 lg:px-12">
+        <div className="mx-auto grid w-full max-w-[1320px] grid-cols-[230px_1fr_320px] items-center gap-12 px-6 lg:gap-16 lg:px-12">
           {/* left intro — fixed, never moves with the track */}
           <div>
             <p className="text-[15px] text-gn-blue">Our AI Difference</p>
@@ -171,7 +171,7 @@ export function AiDifferenceInteractive() {
           <div className="hidden xl:flex xl:justify-center">
             <div
               key={activeFeature.id}
-              className="gn-feature-icon relative aspect-[241/183] w-[220px] overflow-hidden rounded-2xl"
+              className="gn-feature-icon relative aspect-[241/183] w-[300px] overflow-hidden rounded-lg"
               style={{ transform: "rotate(5deg)" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- external placeholder-only source, not app content */}
