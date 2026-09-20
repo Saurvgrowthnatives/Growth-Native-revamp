@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { ScrollRevealHeading } from "@/components/ui/scroll-reveal-heading";
 import { AI_FEATURES } from "./content";
 
 /** Mobile / reduced-motion fallback — same nine features, no scroll track. */
@@ -7,9 +8,9 @@ export function AiDifferenceStatic() {
     <section className="bg-white px-6 py-16 sm:py-20">
       <div className="mx-auto max-w-[640px]">
         <p className="text-[15px] text-gn-blue">Our AI Difference</p>
-        <p className="mt-2 text-[20px] leading-[1.4] text-gn-black/80">
+        <ScrollRevealHeading className="mt-2 text-[20px] leading-[1.4] text-gn-black/80">
           The AI Engine Behind Everything We Do
-        </p>
+        </ScrollRevealHeading>
 
         <div className="mt-10 divide-y divide-black/5">
           {AI_FEATURES.map((feature) => (

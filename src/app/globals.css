@@ -277,3 +277,15 @@ body {
     animation: none;
   }
 }
+
+/* Scroll-scrubbed word reveal (ScrollRevealHeading). The resting state lives
+   in CSS so the server-rendered heading never flashes sharp before GSAP takes
+   over; reduced-motion users get the finished, sharp heading with no JS. */
+@media (prefers-reduced-motion: no-preference) {
+  .gn-reveal-word {
+    opacity: 0.15;
+    filter: blur(10px);
+    transform: translateY(14px);
+    will-change: opacity, filter, transform;
+  }
+}

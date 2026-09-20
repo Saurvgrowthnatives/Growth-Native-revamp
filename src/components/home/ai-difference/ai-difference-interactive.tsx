@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollRevealHeading } from "@/components/ui/scroll-reveal-heading";
 import { AI_FEATURES } from "./content";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -110,9 +111,14 @@ export function AiDifferenceInteractive() {
           {/* left intro — fixed, never moves with the track */}
           <div>
             <p className="text-[15px] text-gn-blue">Our AI Difference</p>
-            <p className="mt-2 max-w-[230px] text-[20px] leading-[1.4] text-gn-black/80">
+            {/* pinned + vertically centred: finish lower on screen than the default */}
+            <ScrollRevealHeading
+              start="top 100%"
+              end="top 55%"
+              className="mt-2 max-w-[230px] text-[20px] leading-[1.4] text-gn-black/80"
+            >
               The AI Engine Behind Everything We Do
-            </p>
+            </ScrollRevealHeading>
             <a
               href="/ai-labs"
               className="mt-7 inline-flex items-center gap-2 rounded-full border border-black/[0.12] px-6 py-3.5 text-[15px] font-medium text-gn-black transition-colors hover:bg-black/[0.03]"

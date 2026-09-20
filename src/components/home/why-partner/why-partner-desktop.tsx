@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { ScrollRevealHeading } from "@/components/ui/scroll-reveal-heading";
 import { METRICS, WHY_PARTNER } from "./content";
 import {
   createWhyPartnerScene,
@@ -133,9 +134,15 @@ export function WhyPartnerDesktop() {
               <span className="h-px w-7 bg-gn-blue/40" aria-hidden />
               {WHY_PARTNER.eyebrow.toUpperCase()}
             </p>
-            <h2 className="mt-8 max-w-[460px] text-[40px] font-medium leading-[1.12] tracking-tight text-gn-black">
+            {/* pinned + vertically centred, so the reveal must finish lower
+                on screen than the default to be complete before the pin */}
+            <ScrollRevealHeading
+              start="top 100%"
+              end="top 55%"
+              className="mt-8 max-w-[460px] text-[40px] font-medium leading-[1.12] tracking-tight text-gn-black"
+            >
               {WHY_PARTNER.heading}
-            </h2>
+            </ScrollRevealHeading>
             <p className="mt-6 max-w-[420px] text-[15px] leading-7 text-gn-dark-grey">
               {WHY_PARTNER.description}
             </p>

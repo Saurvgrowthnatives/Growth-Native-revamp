@@ -1,3 +1,4 @@
+import { ScrollRevealHeading } from "@/components/ui/scroll-reveal-heading";
 import { METRICS, WHY_PARTNER } from "./content";
 
 /**
@@ -13,9 +14,9 @@ export function WhyPartnerStatic() {
         {WHY_PARTNER.eyebrow.toUpperCase()}
       </p>
 
-      <h2 className="mt-6 max-w-[620px] text-[30px] font-semibold leading-[1.15] tracking-tight text-gn-black sm:text-[38px]">
+      <ScrollRevealHeading className="mt-6 max-w-[620px] text-[30px] font-semibold leading-[1.15] tracking-tight text-gn-black sm:text-[38px]">
         {WHY_PARTNER.heading}
-      </h2>
+      </ScrollRevealHeading>
 
       <p className="mt-5 max-w-[540px] text-base leading-7 text-gn-dark-grey">
         {WHY_PARTNER.description}
