@@ -17,10 +17,13 @@ const RUBBER_BAND = 0.35;
 // How far (ms of release velocity) a flick carries before snapping.
 const FLICK_MS = 220;
 // Scroll-scrub smoothing (seconds the cards take to catch up with the page).
-const SCRUB = 0.7;
+const SCRUB = 0.25;
+// Extra scroll distance per card moved: >1 makes the cards travel slower than
+// the page, which reads as a calmer, more premium slide.
+const PIN_SCROLL_FACTOR = 1.35;
 // Page scroll moves the cards this many card-widths, then releases the pin.
 // Everything past that is reached with the arrows or by dragging.
-const SCROLL_CARDS = 2;
+const SCROLL_CARDS = 2.5;
 // Share of the pinned scroll at each end where the cards rest, so the header
 // can be read before they move and the last card settles before the unpin.
 const HOLD = 0.08;
@@ -166,7 +169,7 @@ export function WhatWeDoSection() {
       if (pinned) {
         // One viewport of pin plus the scroll needed to move SCROLL_CARDS cards.
         const travel = Math.min(maxX, SCROLL_CARDS * step);
-        wrap.style.height = `calc(100vh + ${travel / SPAN}px)`;
+        wrap.style.height = `calc(100vh + ${(travel / SPAN) * PIN_SCROLL_FACTOR}px)`;
         ScrollTrigger.refresh();
       } else {
         wrap.style.height = "";
@@ -219,7 +222,7 @@ export function WhatWeDoSection() {
         {
           scroll: () =>
             Math.min(metrics.current.maxX, SCROLL_CARDS * metrics.current.step),
-          ease: "none",
+          ease: "power1.inOut",
           duration: SPAN,
           onUpdate: render,
         },
@@ -483,7 +486,7 @@ function ServiceCard({
           href={service.href}
           draggable={false}
           aria-label={`Explore ${service.title}`}
-          className="group/cta mt-[clamp(10px,1.8vh,16px)] inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/15 px-4 py-[clamp(6px,1vh,8px)] text-[13px] font-medium text-white backdrop-blur-md transition-colors duration-300 after:absolute after:inset-0 after:content-[''] hover:bg-white/25 focus-visible:outline-none"
+          className="group/cta mt-[clamp(10px,1.8vh,16px)] inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/20 px-4 py-[clamp(6px,1vh,8px)] text-[13px] font-medium text-white transition-colors duration-300 after:absolute after:inset-0 after:content-[''] hover:bg-white/30 focus-visible:outline-none"
         >
           Explore
           <ArrowRight

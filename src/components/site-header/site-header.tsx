@@ -44,7 +44,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40">
       {announcementVisible && <AnnouncementBar onClose={dismissAnnouncement} />}
       <div
-        className={`bg-gn-black/90 backdrop-blur-md transition-shadow duration-200 ${
+        className={`bg-gn-black/95 transition-shadow duration-200 ${
           scrolled ? "shadow-[0_1px_0_0_rgba(255,255,255,0.08)]" : ""
         }`}
       >

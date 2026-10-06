@@ -1,38 +1,55 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollRevealHeading } from "@/components/ui/scroll-reveal-heading";
 import { AI_FEATURES } from "./content";
+import { FEATURE_ICONS } from "./icons";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SCROLL_VH_PER_ITEM = 45;
-// Opacity by distance from the active row (0/1/2/3+), taken directly from
-// the approved Figma spec (0.15 / 0.35 / 0.6 / 1), not guessed.
-const OPACITY_BY_DIST = [1, 0.6, 0.35, 0.15];
+const SCROLL_VH_PER_ITEM = 40;
+// Exactly three rows are ever visible: the active title and one neighbour
+// above and below it. Anything further is opacity 0 (present in the track
+// for a continuous slide, but never shown or reachable by keyboard). All
+// three share one font size/weight — only opacity marks which is active, so
+// the row transition never triggers a layout-affecting font-size animation.
+const NEIGHBOR_OPACITY = 0.2;
+// Extra room above/below the exact prev-to-next span, purely so the mask's
+// fade has something to fade through rather than starting flush on the text.
+const FADE_MARGIN = 24;
 
-// Dummy per-feature photo until real imagery exists — Lorem Picsum, seeded
-// per feature id so each service gets a stable, distinct placeholder image
-// (not a random one on every reload) rather than an icon-in-a-box.
-function placeholderImageUrl(featureId: string) {
-  return `https://picsum.photos/seed/${featureId}/640/487`;
-}
+// Dial: one ring of ticks, split into an equal segment per feature, so the
+// lit arc doubles as a "3 of 9" progress read-out.
+const TICKS_PER_FEATURE = 8;
+const TICK_COUNT = AI_FEATURES.length * TICKS_PER_FEATURE;
+const TICK_INNER = 80;
+const TICK_OUTER = 91;
+
+const DIAL_TICKS = Array.from({ length: TICK_COUNT }, (_, i) => {
+  const angle = (i / TICK_COUNT) * Math.PI * 2 - Math.PI / 2;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x1: 100 + cos * TICK_INNER,
+    y1: 100 + sin * TICK_INNER,
+    x2: 100 + cos * TICK_OUTER,
+    y2: 100 + sin * TICK_OUTER,
+  };
+});
 
 /**
- * `activeIndex` is the single source of truth: scroll position decides it,
- * and a click drives the page scroll so the same rule produces the index
- * that was clicked — the two can never disagree.
+ * Pinned "why" track (unitedcarriers.com/careers reference): a static dial on
+ * the left whose icon swaps as the active feature changes, the feature titles
+ * running through the middle, and the active description held on the right.
  *
- * The active row's description lives in normal document flow directly under
- * its title (matching the approved Figma layout), which means the active
- * row is taller than an inactive one and later rows shift down — so instead
- * of a fixed row-height formula, the track's transform is derived from the
- * active item's *measured* offsetTop/offsetHeight every time activeIndex
- * changes. That's what keeps the active row exactly centred regardless of
- * whether its description wraps to one line or three.
+ * `activeIndex` is the single source of truth — scroll position sets it, and
+ * clicking a title drives the page scroll so the same rule resolves to the
+ * clicked item; the two can never disagree. The track's transform is derived
+ * from the active row's *measured* offsetTop/offsetHeight, so a title that
+ * wraps to two lines stays exactly centred.
  */
 export function AiDifferenceInteractive() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -45,8 +62,20 @@ export function AiDifferenceInteractive() {
   function centerActiveItem() {
     const wrap = listWrapRef.current;
     const list = listRef.current;
-    const activeEl = itemRefs.current[activeIndexRef.current];
+    const i = activeIndexRef.current;
+    const activeEl = itemRefs.current[i];
     if (!wrap || !list || !activeEl) return;
+
+    // A title can wrap to two lines (e.g. "Targeting Your Ideal Customer
+    // Profiles"), so rows are not a fixed height — the wrap must size itself
+    // to whatever the active row plus its two neighbours actually measure,
+    // every time, or a two-line neighbour gets clipped by a fixed box.
+    const prevEl = itemRefs.current[i - 1] ?? activeEl;
+    const nextEl = itemRefs.current[i + 1] ?? activeEl;
+    const topEdge = prevEl.offsetTop;
+    const bottomEdge = nextEl.offsetTop + nextEl.offsetHeight;
+    wrap.style.height = `${bottomEdge - topEdge + FADE_MARGIN * 2}px`;
+
     const centerY = wrap.clientHeight / 2;
     const y = centerY - activeEl.offsetTop - activeEl.offsetHeight / 2;
     list.style.transform = `translate3d(0, ${y}px, 0)`;
@@ -94,11 +123,15 @@ export function AiDifferenceInteractive() {
     // Aim at the middle of item i's band, so once the scroll lands the
     // onUpdate rule above resolves to exactly i.
     const targetProgress = (i + 0.5) / AI_FEATURES.length;
-    const targetY = st.start + targetProgress * (st.end - st.start);
-    window.scrollTo({ top: targetY, behavior: "smooth" });
+    window.scrollTo({
+      top: st.start + targetProgress * (st.end - st.start),
+      behavior: "smooth",
+    });
   }
 
   const activeFeature = AI_FEATURES[activeIndex];
+  const ActiveIcon = FEATURE_ICONS[activeIndex];
+  const litTicks = (activeIndex + 1) * TICKS_PER_FEATURE;
 
   return (
     <div
@@ -106,88 +139,130 @@ export function AiDifferenceInteractive() {
       className="relative"
       style={{ height: `${AI_FEATURES.length * SCROLL_VH_PER_ITEM}vh` }}
     >
-      <div className="sticky top-0 flex h-screen items-center bg-white">
-        <div className="mx-auto grid w-full max-w-[1320px] grid-cols-[230px_1fr_320px] items-center gap-12 px-6 lg:gap-16 lg:px-12">
-          {/* left intro — fixed, never moves with the track */}
-          <div>
-            <p className="text-[15px] text-gn-blue">Our AI Difference</p>
-            {/* pinned + vertically centred: finish lower on screen than the default */}
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden bg-gn-black">
+        {/* blue atmosphere behind the dial, per the brand's dark surfaces */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-0 top-1/2 h-[720px] w-[720px] -translate-x-1/3 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(0,116,248,0.12),transparent_65%)]"
+        />
+
+        <div className="relative mx-auto grid w-full max-w-[1320px] grid-cols-[300px_1fr] items-center gap-12 px-6 lg:px-12 xl:grid-cols-[300px_1fr_300px] xl:gap-16">
+          {/* left — intro + the static dial */}
+          <div className="flex flex-col">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gn-blue">
+              Our AI Difference
+            </p>
             <ScrollRevealHeading
               start="top 100%"
               end="top 55%"
-              className="mt-2 max-w-[230px] text-[20px] leading-[1.4] text-gn-black/80"
+              className="mt-3 max-w-[260px] text-[20px] font-medium leading-[1.35] tracking-tight text-white"
             >
               The AI Engine Behind Everything We Do
             </ScrollRevealHeading>
+
+            <div
+              className="relative mt-10 h-[200px] w-[200px]"
+              role="img"
+              aria-label={`Feature ${activeIndex + 1} of ${AI_FEATURES.length}`}
+            >
+              <svg viewBox="0 0 200 200" className="h-full w-full">
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="62"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.08)"
+                  strokeWidth="1"
+                />
+                {DIAL_TICKS.map((tick, i) => (
+                  <line
+                    key={i}
+                    x1={tick.x1}
+                    y1={tick.y1}
+                    x2={tick.x2}
+                    y2={tick.y2}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    className="gn-dial-tick"
+                    stroke={
+                      i < litTicks ? "#0074F8" : "rgba(255,255,255,0.14)"
+                    }
+                  />
+                ))}
+              </svg>
+
+              <div className="absolute inset-0 flex items-center justify-center">
+                <ActiveIcon
+                  key={activeFeature.id}
+                  className="gn-swap-in h-9 w-9 text-white"
+                  strokeWidth={1.5}
+                  aria-hidden
+                />
+              </div>
+            </div>
+
             <a
               href="/ai-labs"
-              className="mt-7 inline-flex items-center gap-2 rounded-full border border-black/[0.12] px-6 py-3.5 text-[15px] font-medium text-gn-black transition-colors hover:bg-black/[0.03]"
+              className="mt-10 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-[14px] font-medium text-white transition-colors hover:bg-white/10"
             >
               Explore More
               <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
             </a>
           </div>
 
-          {/* centre — the scrolling track */}
-          <div ref={listWrapRef} className="gn-feature-mask relative h-[480px] overflow-hidden">
-            <div ref={listRef} className="gn-feature-track absolute left-0 top-0 flex w-full flex-col gap-[17px]">
+          {/* centre — exactly 3 rows: active, centred, plus one neighbour
+              above and below. Rows beyond that stay in the track (for a
+              continuous slide) but sit at opacity 0 and out of tab order. */}
+          <div
+            ref={listWrapRef}
+            className="gn-feature-mask relative overflow-hidden"
+          >
+            <div
+              ref={listRef}
+              className="gn-feature-track absolute left-0 top-0 flex w-full flex-col gap-8 sm:gap-12 xl:gap-14"
+            >
               {AI_FEATURES.map((feature, i) => {
-                const isActive = i === activeIndex;
-                const dist = Math.min(3, Math.abs(i - activeIndex));
+                const dist = Math.abs(i - activeIndex);
+                const isActive = dist === 0;
+                const isVisible = dist <= 1;
                 return (
                   <div
                     key={feature.id}
                     ref={(el) => {
                       itemRefs.current[i] = el;
                     }}
-                    className="flex flex-col gap-[11px]"
                   >
                     <button
                       type="button"
                       onClick={() => goTo(i)}
                       aria-current={isActive ? "true" : undefined}
-                      className="gn-feature-title flex w-full items-center gap-3 truncate text-left text-[24px] leading-[1.2] tracking-tight xl:text-[28px]"
+                      aria-hidden={!isVisible}
+                      tabIndex={isVisible ? 0 : -1}
+                      className="gn-feature-title block max-w-[520px] text-left text-[26px] font-bold leading-[1.18] tracking-tight text-white xl:text-[32px]"
                       style={{
-                        color: isActive ? "#0074F8" : "#1c1c1e",
-                        fontWeight: isActive ? 500 : 400,
-                        opacity: isActive ? 1 : OPACITY_BY_DIST[dist],
+                        opacity: isActive ? 1 : isVisible ? NEIGHBOR_OPACITY : 0,
+                        pointerEvents: isVisible ? "auto" : "none",
                       }}
                     >
                       {feature.title}
-                      {isActive && (
-                        <ArrowUpRight className="h-6 w-6 shrink-0 text-gn-green" aria-hidden />
-                      )}
+                      {/* every description stays readable to screen readers,
+                          whatever the visible right-hand column shows */}
+                      <span className="sr-only">. {feature.description}</span>
                     </button>
-                    {isActive && (
-                      <p
-                        className="max-w-[500px] text-[17px] leading-[1.4]"
-                        style={{ color: "rgb(126, 129, 134)" }}
-                      >
-                        {feature.description}
-                      </p>
-                    )}
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* right — dummy per-feature photo (not real imagery yet),
-              crossfades in as the active feature changes */}
-          <div className="hidden xl:flex xl:justify-center">
-            <div
+          {/* right — the active description, held level with the centred row */}
+          <div className="hidden xl:block" aria-hidden>
+            <p
               key={activeFeature.id}
-              className="gn-feature-icon relative aspect-[241/183] w-[300px] overflow-hidden rounded-lg"
-              style={{ transform: "rotate(5deg)" }}
+              className="gn-swap-in max-w-[280px] text-[17px] leading-[1.75] text-white/55"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- external placeholder-only source, not app content */}
-              <img
-                src={placeholderImageUrl(activeFeature.id)}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gn-blue/15" aria-hidden />
-            </div>
+              {activeFeature.description}
+            </p>
           </div>
         </div>
       </div>

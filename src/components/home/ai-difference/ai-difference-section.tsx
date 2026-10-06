@@ -5,15 +5,17 @@ import { useEffect, useState } from "react";
 import { AiDifferenceStatic } from "./ai-difference-static";
 
 const AiDifferenceInteractive = dynamic(
-  () => import("./ai-difference-interactive").then((m) => m.AiDifferenceInteractive),
-  { ssr: false }
+  () =>
+    import("./ai-difference-interactive").then((m) => m.AiDifferenceInteractive),
+  { ssr: false },
 );
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
 export function AiDifferenceSection() {
-  // `null` until measured, so the pinned track never mounts on a guess.
+  // `null` until measured, so the pinned track never mounts on a guess — and
+  // the static version is what the server renders, keeping the copy in HTML.
   const [immersive, setImmersive] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function AiDifferenceSection() {
   }, []);
 
   return (
-    <section id="ai-difference" className="relative bg-white">
+    <section id="ai-difference" className="relative bg-gn-black">
       {immersive ? <AiDifferenceInteractive /> : <AiDifferenceStatic />}
     </section>
   );

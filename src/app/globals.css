@@ -225,59 +225,6 @@ body {
   }
 }
 
-/* AI Difference — vertical feature track */
-.gn-feature-mask {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 26%,
-    black 74%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 26%,
-    black 74%,
-    transparent 100%
-  );
-}
-
-.gn-feature-track {
-  transition: transform 800ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.gn-feature-title {
-  transition:
-    color 400ms ease,
-    opacity 400ms ease;
-}
-
-@keyframes gn-icon-fade {
-  from {
-    opacity: 0;
-    transform: rotate(5deg) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: rotate(5deg) scale(1);
-  }
-}
-
-.gn-feature-icon {
-  animation: gn-icon-fade 450ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gn-feature-track,
-  .gn-feature-title {
-    transition: none;
-  }
-  .gn-feature-icon {
-    animation: none;
-  }
-}
-
 /* Scroll-scrubbed word reveal (ScrollRevealHeading). The resting state lives
    in CSS so the server-rendered heading never flashes sharp before GSAP takes
    over; reduced-motion users get the finished, sharp heading with no JS. */
@@ -287,5 +234,314 @@ body {
     filter: blur(10px);
     transform: translateY(14px);
     will-change: opacity, filter, transform;
+  }
+}
+
+/* AI Difference — pinned feature track: exactly 3 rows are ever visible
+   (active + one neighbour each side); the mask just softens the top/bottom
+   edge of those neighbour rows rather than hard-clipping their text. */
+.gn-feature-mask {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18%,
+    black 82%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18%,
+    black 82%,
+    transparent 100%
+  );
+}
+
+.gn-feature-track {
+  transition: transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* transform-only slide, promoted to its own compositor layer so it never
+     shares a paint/layout pass with the rest of the (long, pinned) section */
+  will-change: transform;
+}
+
+/* opacity only — every row shares one font size/weight, so switching which
+   row is "active" never triggers a layout-affecting property */
+.gn-feature-title {
+  transition: opacity 400ms ease;
+}
+
+.gn-dial-tick {
+  transition: stroke 450ms ease;
+}
+
+/* Icon / description swap as the active feature changes */
+@keyframes gn-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gn-swap-in {
+  animation: gn-swap-in 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-feature-track,
+  .gn-feature-title,
+  .gn-dial-tick {
+    transition: none;
+  }
+  .gn-swap-in {
+    animation: none;
+  }
+}
+
+/* Case studies — Papermark "Real impact" rail on a light surface. One card
+   is open (grows, big quote, link visible); hovering or focusing another
+   opens it and closes the rest.
+   Performance note: the reference animates font-size and bottom, which force
+   a text layout pass every frame. Here the quote keeps ONE font size and is
+   scaled/translated instead, so the only layout-affecting property left is
+   flex-grow; everything else rides the compositor. */
+.gn-impact-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gn-impact-card {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #0b1220;
+  /* scopes layout/paint work to the card as it resizes */
+  contain: layout paint;
+}
+
+/* dim layer that clears on the open card */
+.gn-impact-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(3, 8, 15, 0.3);
+  transition: background 0.45s ease;
+}
+
+/* readability gradient behind the text */
+.gn-impact-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(3, 8, 15, 0.15) 0%,
+    rgba(3, 8, 15, 0.5) 58%,
+    rgba(3, 8, 15, 0.82) 100%
+  );
+}
+
+.gn-impact-client {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  right: 28px;
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* One fixed size — on desktop it only fades/slides in and out (opacity +
+   transform), so no font metrics are recomputed mid-transition. */
+.gn-impact-label {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 64px;
+  z-index: 2;
+  max-width: 22ch;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #fff;
+  will-change: transform, opacity;
+}
+
+.gn-impact-link {
+  position: absolute;
+  left: 28px;
+  bottom: 28px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #fff;
+  will-change: transform, opacity;
+}
+
+.gn-impact-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+}
+
+.gn-impact-hit:focus-visible {
+  outline: 2px solid #0074f8;
+  outline-offset: -3px;
+}
+
+@media (min-width: 1024px) {
+  .gn-impact-rail {
+    flex-direction: row;
+    height: 540px;
+  }
+
+  .gn-impact-card {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    transition: flex-grow 0.6s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  /* closed: no text at all — the tag, quote and link only exist on the
+     open card. They leave instantly, and arrive after a short delay so they
+     appear once the card has mostly widened instead of re-wrapping inside
+     a card that is still growing. */
+  .gn-impact-client,
+  .gn-impact-label,
+  .gn-impact-link {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+    transition-delay: 0s;
+  }
+
+  /* open: the default card while the rail is idle... */
+  .gn-impact-card.is-active {
+    flex-grow: 3;
+  }
+  .gn-impact-card.is-active::before {
+    background: rgba(3, 8, 15, 0);
+  }
+  .gn-impact-card.is-active :is(.gn-impact-client, .gn-impact-label, .gn-impact-link) {
+    opacity: 1;
+    transform: none;
+    transition-duration: 0.45s;
+    transition-delay: 0.2s;
+  }
+
+  /* ...and while the rail is hovered/focused, whichever card is under the
+     pointer (or holds focus) instead */
+  .gn-impact-rail:is(:hover, :focus-within) .gn-impact-card.is-active {
+    flex-grow: 1;
+  }
+  .gn-impact-rail:is(:hover, :focus-within)
+    .gn-impact-card.is-active:not(:hover, :focus-within)::before {
+    background: rgba(3, 8, 15, 0.3);
+  }
+  .gn-impact-rail:is(:hover, :focus-within)
+    .gn-impact-card.is-active:not(:hover, :focus-within)
+    :is(.gn-impact-client, .gn-impact-label, .gn-impact-link) {
+    opacity: 0;
+    transform: translateY(10px);
+    transition-duration: 0.3s;
+    transition-delay: 0s;
+  }
+
+  .gn-impact-rail:is(:hover, :focus-within)
+    .gn-impact-card:is(:hover, :focus-within) {
+    flex-grow: 3;
+  }
+  .gn-impact-rail:is(:hover, :focus-within)
+    .gn-impact-card:is(:hover, :focus-within)::before {
+    background: rgba(3, 8, 15, 0);
+  }
+  .gn-impact-rail:is(:hover, :focus-within)
+    .gn-impact-card:is(:hover, :focus-within)
+    :is(.gn-impact-client, .gn-impact-label, .gn-impact-link) {
+    opacity: 1;
+    transform: none;
+    transition-duration: 0.45s;
+    transition-delay: 0.2s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-impact-card,
+  .gn-impact-card::before,
+  .gn-impact-client,
+  .gn-impact-label,
+  .gn-impact-link {
+    transition: none !important;
+  }
+}
+
+/* Testimonials (Supercut customer highlight) — quote words rise in on each
+   change, the portrait crossfades, and the active tab's progress line fills
+   over the autoplay interval. Opacity/transform only. */
+@keyframes gn-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gn-word {
+  animation: gn-word-in 0.5s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+@keyframes gn-crossfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gn-crossfade {
+  animation: gn-crossfade 0.45s cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+
+@keyframes gn-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.gn-progress {
+  transform-origin: left;
+  animation: gn-progress linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-word,
+  .gn-crossfade,
+  .gn-progress {
+    animation: none;
   }
 }
