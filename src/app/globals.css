@@ -545,3 +545,65 @@ body {
     animation: none;
   }
 }
+
+/* Testimonials V2 (Steep customer story) — first-reveal motion. Each quote
+   word rises out of its own mask (0.6s, staggered inline), then the
+   attribution, CTAs and portrait follow. Elements that mount later (after a
+   tab swap) already sit in the revealed state, so they simply crossfade.
+   The hidden start state is gated on no-preference, so reduced-motion
+   visitors get the finished layout with no motion at all. */
+.gn-v2-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.gn-v2-word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gn-v2-word {
+    transform: translateY(100%);
+    opacity: 0;
+    transition:
+      transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1),
+      opacity 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  .gn-v2-quote[data-revealed="true"] .gn-v2-word {
+    transform: none;
+    opacity: 1;
+  }
+
+  .gn-v2-rise {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.215, 0.61, 0.355, 1),
+      transform 0.7s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  .gn-v2-rise[data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
+  .gn-v2-rise-1[data-revealed="true"] {
+    transition-delay: 0.35s;
+  }
+  .gn-v2-rise-2[data-revealed="true"] {
+    transition-delay: 0.55s;
+  }
+
+  .gn-v2-image {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1),
+      transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  .gn-v2-image[data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
