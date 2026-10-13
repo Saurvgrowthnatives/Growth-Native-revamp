@@ -6,6 +6,10 @@ import { WhatWeDoSection } from "@/components/home/what-we-do/what-we-do-section
 import { AwardsSection } from "@/components/home/awards/awards-section";
 import { CaseStudiesSection } from "@/components/home/case-studies/case-studies-section";
 import { TestimonialsSection } from "@/components/home/testimonials/testimonials-section";
+import { NewsSection } from "@/components/home/news/news-section";
+import { AiReadinessSection } from "@/components/home/ai-readiness/ai-readiness-section";
+import { FinalCtaSection } from "@/components/home/final-cta/final-cta-section";
+import { StatsSection } from "@/components/home/stats/stats-section";
 import { ScrollRefresh } from "@/components/ui/scroll-refresh";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
 
@@ -20,6 +24,10 @@ export default function Home() {
       <AwardsSection />
       <CaseStudiesSection />
       <TestimonialsSection />
+      <NewsSection />
+      <AiReadinessSection />
+      <FinalCtaSection />
+      <StatsSection />
       <SmoothScroll />
       <ScrollRefresh />
     </main>

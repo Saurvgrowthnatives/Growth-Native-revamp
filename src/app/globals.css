@@ -493,37 +493,8 @@ body {
   }
 }
 
-/* Testimonials (Supercut customer highlight) — quote words rise in on each
-   change, the portrait crossfades, and the active tab's progress line fills
-   over the autoplay interval. Opacity/transform only. */
-@keyframes gn-word-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.gn-word {
-  animation: gn-word-in 0.5s cubic-bezier(0.2, 0.6, 0.2, 1) both;
-}
-
-@keyframes gn-crossfade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.gn-crossfade {
-  animation: gn-crossfade 0.45s cubic-bezier(0.7, 0, 0.3, 1) both;
-}
-
+/* Testimonials — the active tab's loader line fills over the autoplay
+   interval. Transform only. */
 @keyframes gn-progress {
   from {
     transform: scaleX(0);
@@ -539,8 +510,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gn-word,
-  .gn-crossfade,
   .gn-progress {
     animation: none;
   }
@@ -605,5 +574,212 @@ body {
   .gn-v2-image[data-revealed="true"] {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* News cards (Voiceflow "New from" rail) — white panel, soft layered shadow
+   that deepens and lifts on hover. Shadow values follow the reference's own
+   card tokens; the lift is a transform so it stays off the layout path. */
+.gn-news-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px 1px rgba(22, 26, 30, 0.012),
+    0 4px 8px -6px rgba(22, 26, 30, 0.08),
+    0 1px 5px -4px rgba(22, 26, 30, 0.08),
+    0 0 0 1px rgba(22, 26, 30, 0.04),
+    0 1px 0 0 rgba(22, 26, 30, 0.02);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.gn-news-card:hover,
+.gn-news-card:focus-within {
+  transform: translateY(-3px);
+  box-shadow:
+    0 20px 44px -18px rgba(22, 26, 30, 0.12),
+    0 16px 28px -18px rgba(22, 26, 30, 0.12),
+    0 12px 20px -18px rgba(22, 26, 30, 0.08),
+    0 8px 12px -18px rgba(22, 26, 30, 0.04),
+    0 0 0 1px rgba(22, 26, 30, 0.06);
+}
+
+/* two-line clamp, so uneven headline lengths keep the cards aligned */
+.gn-news-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-news-card {
+    transition: none;
+  }
+  .gn-news-card:hover,
+  .gn-news-card:focus-within {
+    transform: none;
+  }
+}
+
+/* AI Readiness — card motion scenes (visuals.tsx). Each element's own
+   styles are its FINAL frame; its animation starts from the initial state
+   (`from`-only keyframes animate toward that base) with fill-mode both.
+   A scene that isn't playing therefore shows its finished picture; a
+   paused one (off screen, tab hidden, dragging) freezes in place, in step
+   with the progress bar. Transform / opacity / dashoffset only. */
+.gn-ar-tb {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.gn-ar-viz[data-playing="false"] * {
+  animation: none !important;
+}
+
+.gn-ar-viz[data-paused="true"] * {
+  animation-play-state: paused !important;
+}
+
+@keyframes gn-ar-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes gn-ar-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes gn-ar-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes gn-ar-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes gn-ar-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes gn-ar-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes gn-ar-dot {
+  from {
+    fill: rgba(255, 255, 255, 0.22);
+  }
+}
+
+@keyframes gn-ar-scan {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--scan-x));
+  }
+}
+
+@keyframes gn-ar-ping {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+@keyframes gn-ar-ping-rect {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes gn-ar-slide {
+  from {
+    transform: translateX(0);
+  }
+}
+
+@keyframes gn-ar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* step counter — the new number slides in from the side it came from */
+@keyframes gn-ar-count-next {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gn-ar-count-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.gn-ar-count-next {
+  animation: gn-ar-count-next 0.25s ease-out both;
+}
+
+.gn-ar-count-prev {
+  animation: gn-ar-count-prev 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-ar-viz *,
+  .gn-ar-count-next,
+  .gn-ar-count-prev {
+    animation: none !important;
+  }
+}
+
+/* AI Readiness — on cards narrower than ~330px (phones), the secondary
+   captions in each scene drop out so what remains stays legible instead of
+   crowding. The scene's own box is the container (`@container` in the
+   section), so this follows the card, not the viewport. */
+@container (max-width: 330px) {
+  .gn-ar-minor {
+    display: none;
   }
 }

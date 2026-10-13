@@ -16,6 +16,10 @@ type ScrollRevealHeadingProps = {
   start?: string;
   /** ScrollTrigger end: every word is fully sharp once this line is reached. */
   end?: string;
+  /** Optional trailing phrase set in `accentClassName` (e.g. a brand-colour
+   *  highlight). It reveals word by word with the rest of the heading. */
+  accent?: string;
+  accentClassName?: string;
 };
 
 // Seconds the words take to catch up with the scroll position; higher = softer.
@@ -44,9 +48,12 @@ export function ScrollRevealHeading({
   className,
   start = "top 98%",
   end = "top 40%",
+  accent,
+  accentClassName,
 }: ScrollRevealHeadingProps) {
   const ref = useRef<HTMLHeadingElement>(null);
-  const words = children.split(" ");
+  const words = children.trim().split(" ");
+  const accentWords = accent ? accent.trim().split(" ") : [];
 
   useEffect(() => {
     const el = ref.current;
@@ -78,9 +85,19 @@ export function ScrollRevealHeading({
       {words.map((word, i) => (
         <span key={i}>
           <span className="gn-reveal-word inline-block">{word}</span>
-          {i < words.length - 1 ? " " : null}
+          {i < words.length - 1 || accentWords.length ? " " : null}
         </span>
       ))}
+      {accentWords.length ? (
+        <span className={accentClassName}>
+          {accentWords.map((word, i) => (
+            <span key={i}>
+              <span className="gn-reveal-word inline-block">{word}</span>
+              {i < accentWords.length - 1 ? " " : null}
+            </span>
+          ))}
+        </span>
+      ) : null}
     </Tag>
   );
 }

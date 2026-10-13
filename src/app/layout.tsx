@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import { Agentation } from "agentation";
 import { SiteHeader } from "@/components/site-header/site-header";
+import { SiteFooter } from "@/components/site-footer/site-footer";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <SiteHeader />
         {children}
+        <SiteFooter />
         {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>
