@@ -334,7 +334,7 @@ export function AiReadinessSection() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-[17px] font-medium leading-[1.4] tracking-tight text-gn-black lg:text-[18px]">
+                      <p className="text-[15px] font-medium leading-[1.4] tracking-tight text-gn-black lg:text-[16px]">
                         <span className="text-gn-blue">{step.number}</span>
                         <span className="mx-2 text-gn-black/25">/</span>
                         {step.title}
@@ -343,7 +343,7 @@ export function AiReadinessSection() {
                         {step.points.map((point) => (
                           <li
                             key={point}
-                            className="flex items-center gap-2.5 text-[15px] leading-[1.5] text-gn-black/75 lg:text-[16px]"
+                            className="flex items-center gap-2 text-[13px] leading-[1.5] text-gn-black/70 lg:text-[14px]"
                           >
                             <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-gn-blue" />
                             {point}
